@@ -1,7 +1,6 @@
 from collections import UserDict
 from datetime import datetime
 import pickle
-import os
 
 
 class Field:
@@ -15,7 +14,7 @@ class Field:
 
     def is_valid(self, value):
         return True
-    
+
     @property
     def value(self):
         return self.__value
@@ -80,12 +79,10 @@ class Record:
         return (next_birthday - datetime.now()).days
 
     def __str__(self):
-        return f"""Contact name: {self.name.value},
-                    phones: {'; '.join(p.value for p in self.phones)}"""
+        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
 
 
 class AddressBook(UserDict):
-    
     def __init__(self):
         super().__init__()
         self.current_page = 0
@@ -100,7 +97,7 @@ class AddressBook(UserDict):
                 return "ValueError: The value you provided is not valid."
             except TypeError:
                 return "TypeError: The function you called is missing required arguments."
-        return inner 
+        return inner
 
     @input_error
     def add_record(self, record):
@@ -132,16 +129,24 @@ class AddressBook(UserDict):
     @input_error
     def save_to_file(self):
         filename = 'address_book.pkl'
-        with open(filename, 'wb') as file:
-            pickle.dump(self.data, file)
-        return f"Data saved to {filename}"
+        try:
+            with open(filename, 'wb') as file:
+                pickle.dump(self.data, file)
+            return f"Data saved to {filename}"
+        except Exception as e:
+            return f"Error saving data to file: {e}"
 
     @input_error
     def load_from_file(self):
         filename = 'address_book.pkl'
-        with open(filename, 'rb') as file:
-            self.data = pickle.load(file)
-        return f"Downloaded from {filename}"
+        try:
+            with open(filename, 'rb') as file:
+                self.data = pickle.load(file)
+            return f"Downloaded from {filename}"
+        except FileNotFoundError:
+            return f"File {filename} does not exist."
+        except EOFError:
+            return f"File {filename} is empty."
 
     @input_error
     def search(self, query):
@@ -197,13 +202,6 @@ class AddressBook(UserDict):
 
 
 def main(address_book):
-
-    filename = 'address_book.pkl'
-    if os.path.exists(filename):
-        cvc.load_from_file()
-    else:
-        open(filename, 'a').close()
-
     ACTIONS = {
         'add': address_book.add_record_str,
         'delete': address_book.delete,
@@ -215,8 +213,9 @@ def main(address_book):
         'save': address_book.save_to_file,
         'exit': address_book.good_bye,
         'close': address_book.good_bye,
-        '.': address_book.good_bye}
-    
+        '.': address_book.good_bye
+    }
+
     while True:
         data = input()
         func, args = choice_action(data, ACTIONS)
@@ -230,6 +229,7 @@ def main(address_book):
             if result == "Good bye!":
                 break
 
+
 def choice_action(data, ACTIONS):
     parts = data.split()
     if not parts:
@@ -240,6 +240,7 @@ def choice_action(data, ACTIONS):
         return ACTIONS[command], args
     else:
         return "Give me a correct command please", None
+
 
 if __name__ == "__main__":
     cvc = AddressBook()
