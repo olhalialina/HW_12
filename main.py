@@ -71,9 +71,9 @@ class Record:
     def days_to_birthday(self):
         if not self.birthday:
             return None
-        next_birthday = datetime(datetime.now().year, self.birthday.month, self.birthday.day)
+        next_birthday = datetime(datetime.now().year, self.birthday.value.month, self.birthday.value.day)
         if datetime.now() > next_birthday:
-            next_birthday = datetime(datetime.now().year + 1, self.birthday.month, self.birthday.day)
+            next_birthday = datetime(datetime.now().year + 1, self.birthday.value.month, self.birthday.value.day)
         return (next_birthday - datetime.now()).days
 
 
